@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>CountInMind - 遊戲說明</title>
+    <style>
+        body {
+            background-color: #B6E3B9;
+            font-family: 'Microsoft JhengHei', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 370px;
+            height: 663px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #77cc88;
+        }
+        h2 {
+            font-size: 30px;
+            color: #333;
+            text-align: center;
+            margin: 20px 0;
+        }
+        p {
+            font-size: 20px;
+            color: #333;
+            text-align: left;
+        }
+        .button {
+            display: block;
+            margin: 0 auto 10px auto;
+            padding: 16px;
+            font-size: 22px;
+            width: 260px;
+            height:150px;
+            border: none;
+            border-radius: 20px;
+            background-color: #fcecec;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            text-align: center;
+            text-decoration: none;
+        }
+        .button1 {
+            display: block;
+            margin: 0 auto 10px auto;
+            padding: 16px;
+            font-size: 22px;
+            width: 260px;
+            border: none;
+            border-radius: 20px;
+            background-color: #fcecec;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            text-align: center;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: #d9f3dd;
+        }
+        .back {
+            margin-bottom: 10px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #333;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <h2>歡迎使用心算大神</h2>
+            <p>{{ description }}</p>
+        </div>
+        <div>
+        <form action="/game" method="GET">
+            <button class="button">進入測驗畫面</button>
+        </form>
+        <form action="/second" method="get" class="back">
+            <button class="button1">← 上一頁</button>
+        </form>
+        <!-- <a href="/game" class="button">進入測驗畫面</a> -->
+        </div>
+        <div class="footer">
+            © farloveway ; version: 1.0
+        </div>
+    </div>
+</body>
+</html>

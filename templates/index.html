@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>心算訓練工具</title>
+  <style>
+    body { font-family: sans-serif; max-width: 500px; margin: auto; padding: 20px; }
+    .hidden { display: none; }
+    input, select, button { margin-top: 10px; width: 100%; padding: 8px; font-size: 16px; }
+    .countdown { font-weight: bold; font-size: 20px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>🧠 心算訓練工具</h2>
+
+  <div id="setup">
+    <label>選擇模式：</label>
+    <select id="mode">
+      <option value="add">加法</option>
+      <option value="sub">減法</option>
+      <option value="mix">加減混合</option>
+    </select>
+
+    <label>選擇難易度：</label>
+    <select id="level">
+      <option value="easy">易</option>
+      <option value="medium">中</option>
+      <option value="hard">難</option>
+    </select>
+
+    <button onclick="startGame()">開始訓練</button>
+  </div>
+
+  <div id="quiz" class="hidden">
+    <p id="question-text"></p>
+    <div class="countdown" id="timer-text"></div>
+    <input id="answer" type="number" placeholder="輸入你的答案" />
+    <button onclick="submitAnswer()">送出答案</button>
+    <p id="feedback"></p>
+  </div>
+
+  <script>
+    let questions = [];
+    let current = 0;
+    let timer;
+    let timeLimit = 10; // 每題限制 10 秒
+    let timeLeft = timeLimit;
+
+    async function startGame() {
+      const mode = document.getElementById('mode').value;
+      const level = document.getElementById('level').value;
+
+      const response = await fetch('/start_game', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ mode, level })
+      });
+
+      const data = await response.json();
+      questions = data.questions;
+      current = 0;
+
+      document.getElementById('setup').classList.add('hidden');
+      document.getElementById('quiz').classList.remove('hidden');
+
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = questions[current];
+      const qText = q.numbers.join(` ${q.operation} `);
+      document.getElementById('question-text').textContent = `第 ${current + 1} 題：${qText} = ?`;
+      document.getElementById('answer').value = '';
+      document.getElementById('feedback').textContent = '';
+
+      timeLeft = timeLimit;
+      updateTimerText();
+      clearInterval(timer);
+      timer = setInterval(countdown, 1000);
+    }
+
+    function updateTimerText() {
+      document.getElementById('timer-text').textContent = `⏳ 倒數：${timeLeft} 秒`;
+    }
+
+    async function submitAnswer() {
+      clearInterval(timer);
+
+      const userInput = document.getElementById('answer').value;
+      if (userInput === '') {
+        showResult(false, `❌ 未作答，正確答案是 ${questions[current].correct_answer}`);
+      } else {
+        const q = questions[current];
+        const response = await fetch('/submit_answer', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            user_answer: Number(userInput),
+            correct_answer: q.correct_answer
+          })
+        });
+
+        const result = await response.json();
+        showResult(result.correct, result.correct ? "✅ 正確！" : `❌ 錯誤，正確答案是 ${q.correct_answer}`);
+      }
+    }
+
+    function countdown() {
+      timeLeft--;
+      updateTimerText();
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        showResult(false, `⌛ 時間到！正確答案是 ${questions[current].correct_answer}`);
+      }
+    }
+
+    function showResult(isCorrect, message) {
+      document.getElementById('feedback').textContent = message;
+
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) {
+          showQuestion();
+        } else {
+          document.getElementById('quiz').innerHTML = "<h3>🎉 訓練結束！</h3><button onclick='location.reload()'>再試一次</button>";
+        }
+      }, 1500);
+    }
+  </script>
+</body>
+</html>

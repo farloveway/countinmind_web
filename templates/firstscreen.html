@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>CountInMind - 模式選擇</title>
+    <style>
+        body {
+            background-color: #B6E3B9; /* 綠色主題 */
+            font-family: 'Microsoft JhengHei', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 370px;
+            height: 663px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #77cc88;
+        }
+        h1 {
+            font-size: 30px;
+            color: #333;
+            text-align: center;
+        }
+        .instruction {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 18px;
+            color: #333;
+            white-space: pre-line;
+            margin: 10px ;
+        }
+        .button {
+            display: block;
+            margin: 10px auto;
+            padding: 16px;
+            font-size: 24px;
+            width: 260px;
+            border: none;
+            border-radius: 20px;
+            background-color: #fcecec;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+        .button:hover {
+            background-color: #d9f3dd;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #333;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <h1>歡迎使用心算大神</h1>
+            <div class="instruction">
+                作品說明:<br>這是作者本人在國小高年級時，每堂課導師都會依序念幾個數字考心算加總，本人認為這樣方式有助於運算能力。<br>話不多說，那馬上來測試，請點擊以下模式:
+            </div>
+        </div>
+        <form action="/select_mode" method="post">
+            <button class="button" name="mode" value="add">加法</button>
+            <button class="button" name="mode" value="sub">減法</button>
+            <button class="button" name="mode" value="mix">加(減)法</button>
+        </form>
+        <div class="footer">
+            © farloveway ; version: 1.0
+        </div>
+    </div>
+</body>
+</html>

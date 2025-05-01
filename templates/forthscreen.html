@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block title %}CountInMind - 測驗畫面{% endblock %}
+
+{% block content %}
+<div class="container" style="width: 370px; height: 663px; background-color: #77cc88; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); padding: 10px; display: flex; flex-direction: column; position: relative;">
+
+  <!-- 上一頁按鈕 (左上角) -->
+  <div style="position: absolute; top: 10px; left: 10px;">
+    <a href="{{ url_for('thirdscreen') }}" class="btn" style="width: 90px; height: 40px; background-color: #fcecec; color: #333; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #ccc; border-radius: 5px;">← 上一頁</a>
+  </div>
+
+  <!-- 顯示區 -->
+  <div id="input-display" style="flex: 0 0 80px; margin-top: 60px; background-color: #ffffff; border: 2px solid #ccc; border-radius: 10px; padding: 10px; font-size: 24px; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"></div>
+
+  <!-- 數字鍵盤 -->
+  <div class="btn-group d-flex flex-wrap justify-content-center mt-3" id="keypad">
+    {% for num in [7,8,9,4,5,6,1,2,3] %}
+    <button class="btn m-1" style="width: 80px; height: 80px; font-size: 25px; background-color: #99928d; color: white;" onclick="appendInput('{{ num }}')">{{ num }}</button>
+    {% endfor %}
+    <button class="btn m-1" style="width: 80px; height: 80px; font-size: 25px; background-color: #99928d; color: white;" onclick="appendInput('0')">0</button>
+    <button class="btn m-1" style="width: 80px; height: 80px; font-size: 25px; background-color: #99928d; color: white;" onclick="clearInput()">C</button>
+    <button class="btn m-1" style="width: 80px; height: 80px; font-size: 25px; background-color: #99928d; color: white;" onclick="toggleSign()">+/-</button>
+  </div>
+
+  <!-- 功能按鈕 -->
+  <div class="d-flex justify-content-between mt-4">
+    <button id="start-btn" class="btn m-1" style="width: 110px; height: 80px; font-size: 20px; background-color: #71444a; color: lightyellow;" onclick="startGame()">開始出題</button>
+    <button id="submit-btn" class="btn m-1" style="width: 110px; height: 80px; font-size: 20px; background-color: #71444a; color: lightyellow;" onclick="submitAnswer()">Submit</button>
+    <button id="finish-btn" class="btn m-1" style="width: 110px; height: 80px; font-size: 20px; background-color: #71444a; color: lightyellow;" onclick="finishGame()">結算成績</button>
+  </div>
+
+</div>
+
+<script>
+let questions = [];
+let currentIndex = -1;
+let answer = 0;
+let userAnswer = '';
+let correctCount = 0;
+let startValue = 0;
+let showingNumbers = false;
+let numberInterval;
+let currentQuestionNumbers = [];
+let currentNumberIndex = 0;
+
+function disableControls(disable) {
+  document.getElementById('start-btn').disabled = disable;
+  document.getElementById('submit-btn').disabled = disable;
+  document.querySelectorAll('#keypad button').forEach(btn => btn.disabled = disable);
+}
+
+async function startGame() {
+  const res = await fetch('/generate_questions');
+  const data = await res.json();
+  questions = data.questions;
+  startValue = data.start_value;
+  currentIndex = -1;
+  correctCount = 0;
+  if (startValue === 30) {
+  document.getElementById('input-display').innerText = '減法初始值為30';
+  await new Promise(resolve => setTimeout(resolve, 2000));
+}
+
+  document.getElementById('input-display').innerText = '';
+  nextQuestion();
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= questions.length) {
+    document.getElementById('input-display').innerText = '請按結算成績';
+    return;
+  }
+  currentQuestionNumbers = questions[currentIndex];
+  answer = startValue;
+  currentQuestionNumbers.forEach(n => answer += n);
+
+  // 顯示題號
+  document.getElementById('input-display').innerText = `第${currentIndex + 1}題`;
+
+  // 鎖住按鈕
+  disableControls(true);
+
+  // 開始顯示數字
+  showingNumbers = true;
+  currentNumberIndex = 0;
+  numberInterval = setInterval(showNextNumber, 2000);
+}
+
+function showNextNumber() {
+  if (currentNumberIndex < currentQuestionNumbers.length) {
+    document.getElementById('input-display').innerText = currentQuestionNumbers[currentNumberIndex];
+    currentNumberIndex++;
+  } else {
+    clearInterval(numberInterval);
+    showingNumbers = false;
+    document.getElementById('input-display').innerText = '請作答';
+    disableControls(false);
+  }
+}
+
+function appendInput(val) {
+  if (showingNumbers) return;
+  if (val === '0' && (userAnswer === '0' || userAnswer === '')) return;
+  if (userAnswer === '0' && val !== '.') userAnswer = val;  // 替換單一 0
+  else userAnswer += val;
+  document.getElementById('input-display').innerText = userAnswer;
+}
+
+
+function clearInput() {
+  if (showingNumbers) return;
+  userAnswer = '';
+  document.getElementById('input-display').innerText = '';
+}
+
+function toggleSign() {
+  if (showingNumbers) return;
+  if (userAnswer === '' || userAnswer === '0') return;
+  if (userAnswer.startsWith('-')) {
+    userAnswer = userAnswer.slice(1);
+  } else {
+    userAnswer = '-' + userAnswer;
+  }
+  document.getElementById('input-display').innerText = userAnswer;
+}
+
+
+function submitAnswer() {
+  if (showingNumbers || userAnswer === '') return;
+  if (parseInt(userAnswer) === answer) {
+    document.getElementById('input-display').innerText = '答對了^^';
+    correctCount++;
+  } else {
+    document.getElementById('input-display').innerText = `答錯了，正確答案是 ${answer}`;
+  }
+  userAnswer = '';
+  setTimeout(nextQuestion, 2000);
+}
+
+function finishGame() {
+  if (showingNumbers) {
+    clearInterval(numberInterval);
+    showingNumbers = false;
+  }
+  disableControls(false);
+
+  let total = questions.length;
+  let scoreRate = correctCount / total;
+  let resultText = '';
+  if (scoreRate >= 0.8) {
+    resultText = `太棒了！共答對${correctCount}題！`;
+  } else if (scoreRate >= 0.5) {
+    resultText = `還不錯！共答對${correctCount}題！`;
+  } else {
+    resultText = `再加油！共答對${correctCount}題！`;
+  }
+  document.getElementById('input-display').innerText = resultText;
+}
+</script>
+{% endblock %}

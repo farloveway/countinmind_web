@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>CountInMind - 難度選擇</title>
+    <style>
+        body {
+            background-color: #B6E3B9;
+            font-family: 'Microsoft JhengHei', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 370px;
+            height: 663px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #77cc88;
+        }
+        h2 {
+            font-size: 30px;
+            color: #333;
+            text-align: center;
+        }
+        p {
+            font-size: 20px;
+            color: #333;
+            text-align: center;
+        }
+        .button {
+            display: block;
+            margin: 10px auto;
+            padding: 16px;
+            font-size: 22px;
+            width: 260px;
+            border: none;
+            border-radius: 20px;
+            background-color: #fcecec;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+        .button:hover {
+            background-color: #d9f3dd;
+        }
+        .back {
+            margin-bottom: 10px;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #333;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <h2>歡迎使用心算大神</h2>
+            <p>程度說明：<br>(易)適合國小中年級<br>(中)適合國小高年級<br>(難)適合國中一年級</p>
+        </div>
+        <form action="/select_level" method="post">
+            <button class="button" name="level" value="easy">易(題數 4)</button>
+            <button class="button" name="level" value="medium">中(題數 7)</button>
+            <button class="button" name="level" value="hard">難(題數10)</button>
+        </form>
+        <form action="/" method="get" class="back">
+            <button class="button">上一頁</button>
+        </form>
+        <div class="footer">
+            © farloveway ; version: 1.0
+        </div>
+    </div>
+</body>
+</html>
