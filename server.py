@@ -104,4 +104,4 @@ def generate_instruction(mode, level):
     return f"玩法說明：進入測驗畫面，按下「開始出題」後，每 2 秒會隨機出現數字，每題 {count} 個數字，共 {question_count} 題。請使用「{op_text}」依序計算！"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
