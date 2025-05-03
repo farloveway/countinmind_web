@@ -73,31 +73,24 @@ def generate_questions():
 
     questions = []
     for _ in range(num_questions):
-        available_numbers = list(range(1, 10))  # 1～9 不重複
-        if num_per_question > len(available_numbers):
-            # 如果需要的數字比可用數字多，就允許重複
-            nums = []
-            for _ in range(num_per_question):
+        nums = []
+        last_num = None
+        for _ in range(num_per_question):
+            while True:
                 n = random.randint(1, 9)
-                if mode == 'sub':
-                    n = -n
-                elif mode == 'mix':
-                    n *= random.choice([-1, 1])
-                nums.append(n)
-        else:
-            selected = random.sample(available_numbers, num_per_question)
-            nums = []
-            for n in selected:
-                if mode == 'sub':
-                    n = -n
-                elif mode == 'mix':
-                    n *= random.choice([-1, 1])
-                nums.append(n)
-
+                if n != last_num:  # 不讓它與前一個數字重複
+                    break
+            last_num = n
+            if mode == 'sub':
+                n = -n
+            elif mode == 'mix':
+                n *= random.choice([-1, 1])
+            nums.append(n)
         questions.append(nums)
 
     start_value = 30 if mode == 'sub' else 0
     return jsonify({'questions': questions, 'start_value': start_value})
+
 
 
 def generate_instruction(mode, level):
