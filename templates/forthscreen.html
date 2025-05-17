@@ -101,11 +101,24 @@ function showNextNumber() {
 
 function appendInput(val) {
   if (showingNumbers) return;
-  if (val === '0' && (userAnswer === '0' || userAnswer === '')) return;
-  if (userAnswer === '0' && val !== '.') userAnswer = val;  // 替換單一 0
-  else userAnswer += val;
+
+  if (val === '0') {
+    if (userAnswer === '') {
+      userAnswer = '0';
+    } else if (userAnswer !== '0') {
+      userAnswer += '0';
+    }
+  } else {
+    if (userAnswer === '0') {
+      userAnswer = val;  // 將單一0替換為新數字
+    } else {
+      userAnswer += val;
+    }
+  }
+
   document.getElementById('input-display').innerText = userAnswer;
 }
+
 
 
 function clearInput() {
