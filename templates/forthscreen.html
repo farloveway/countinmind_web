@@ -30,6 +30,53 @@
   </div>
 
 </div>
+<!-- 排行榜模態彈窗 -->
+<div id="leaderboard-modal" class="modal">
+  <div class="modal-content" style="width: 90%; max-width: 320px; text-align: center;">
+    <span class="close" onclick="closeLeaderboardModal()">&times;</span>
+    <h2 style="margin-top: 0;">🏆 排行榜</h2>
+    <div id="leaderboard-content"></div>
+  </div>
+</div>
+
+<style>
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 99;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  padding: 20px;
+  border: 1px solid #888;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 320px;
+  box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+  font-family: "Noto Sans TC", sans-serif;
+  text-align: center;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+</style>
+  
+
+
 
 <script>
 let questions = [];
@@ -42,6 +89,7 @@ let showingNumbers = false;
 let numberInterval;
 let currentQuestionNumbers = [];
 let currentNumberIndex = 0;
+let selectedMode = localStorage.getItem("mode") || "加法";  // 預設值可調整
 
 function disableControls(disable) {
   document.getElementById('start-btn').disabled = disable;
@@ -169,6 +217,60 @@ function finishGame() {
     resultText = `再加油！共答對${correctCount}題！`;
   }
   document.getElementById('input-display').innerText = resultText;
+  
+  fetch("/submit_score", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      nickname: localStorage.getItem("nickname"),
+      mode: localStorage.getItem("mode"),
+      score: correctCount
+    }),
+  })
+  .then(response => response.json())
+  .then(result => {
+    console.log(result.message);
+    showLeaderboardModal(result.leaderboard_html); // ✅ 顯示排行榜 modal
+  });
+
 }
+// 顯示排行榜
+function showLeaderboardModal(contentHTML) {
+  const modal = document.getElementById('leaderboard-modal');
+  const content = document.getElementById('leaderboard-content');
+  content.innerHTML = contentHTML;
+  modal.style.display = 'flex';
+}
+
+  // 提交成績
+function submitScore(nickname, mode, score) {
+  fetch('/submit_score', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nickname, mode, score })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.message) {
+      console.log('成績提交成功');
+      showLeaderboard(mode);  // 提交後顯示排行榜
+    } else {
+      console.error('提交錯誤：', data.error);
+      alert('成績提交失敗');
+    }
+  })
+  .catch(err => {
+    console.error('提交發生錯誤：', err);
+    alert('成績提交發生錯誤');
+  });
+}
+
+function closeLeaderboardModal() {
+const modal = document.getElementById('leaderboard-modal');
+modal.style.display = 'none';
+}
+
 </script>
 {% endblock %}

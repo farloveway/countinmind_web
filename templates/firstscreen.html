@@ -8,6 +8,7 @@
     <meta name="author" content="farloveway">
     <meta name="google-site-verification" content="3AiBDBBuDdvpah6ClsXYhbAqz_I6Mk53-J5Jv88Y6xI" />
     <title>CountInMind - 模式選擇</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- 加入 icon -->
     <link rel="icon" href="{{ url_for('static', filename='CountInMindIco.ico') }}" type="image/x-icon">
     <style>
@@ -77,14 +78,68 @@
                 作品說明:<br>這是作者本人在國小高年級時，每堂課導師都會依序念幾個數字考心算加總，本人認為這樣方式有助於運算能力。<br>話不多說，那馬上來測試，請點擊以下模式:
             </div>
         </div>
-        <form action="/select_mode" method="post">
+        <form action="/select_mode" method="post" onsubmit="setMode(event)">
             <button class="button" name="mode" value="add">加法</button>
             <button class="button" name="mode" value="sub">減法</button>
             <button class="button" name="mode" value="mix">加(減)法</button>
         </form>
+        <!-- 新增的重新輸入暱稱按鈕 -->
+        <button class="button" type="button" onclick="resetNickname()">← 重新輸入暱稱</button>
         <div class="footer">
-            © farloveway ; version: 1.0
+            <a href="https://vocus.cc/salon/icanbe">about author Icanbe(click me)</a>
         </div>
     </div>
+    <!-- 暱稱輸入 Modal -->
+    <div class="modal fade" id="nicknameModal" tabindex="-1" aria-labelledby="nicknameModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nicknameModalLabel">請先輸入暱稱</h5>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="saveNickname(); return false;">
+                      <input type="text" id="nicknameInput" class="form-control" placeholder="你的暱稱" required>
+                    </form>
+                </div>                  
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="saveNickname()">送出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let nickname = localStorage.getItem('nickname');
+        // 進入頁面後自動檢查是否已經輸入暱稱
+        window.onload = function () {
+          const nickname = localStorage.getItem('nickname');
+          if (!nickname) {
+            const nicknameModal = new bootstrap.Modal(document.getElementById('nicknameModal'));
+            nicknameModal.show();
+          }
+        };
+      
+        // 儲存暱稱至 localStorage
+        function saveNickname() {
+          const nickname = document.getElementById('nicknameInput').value.trim();
+          if (nickname === "") {
+            alert("暱稱不能為空");
+            return;
+          }
+          localStorage.setItem('nickname', nickname);
+          const modal = bootstrap.Modal.getInstance(document.getElementById('nicknameModal'));
+          modal.hide();
+        }
+        function setMode(event) {
+            const mode = event.submitter.value;
+            localStorage.setItem('mode', mode);
+        }
+        // 若你想在頁面加個「重新輸入暱稱」按鈕，也可以這樣寫：
+        function resetNickname() {
+          localStorage.removeItem('nickname');
+          location.reload();
+        }
+      </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>      
 </body>
 </html>

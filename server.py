@@ -1,6 +1,11 @@
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 import random
-from datetime import timedelta
+from datetime import datetime, timedelta
+from supabase import create_client, Client
+
+SUPABASE_URL = 'https://rqbxwuhjpgyfzfrtbwut.supabase.co'
+SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxYnh3dWhqcGd5ZnpmcnRid3V0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5Njk0OTUsImV4cCI6MjA2MzU0NTQ5NX0.vdDpkO0eeejcAZOh-50GnrNKmQbcll0jcKD8rK56K14'
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = Flask(__name__)
 app.secret_key = 'farloveway'  # 記得更換為安全的 key
@@ -109,6 +114,75 @@ def generate_instruction(mode, level):
     }.get(mode, '')
 
     return f"玩法說明：進入測驗畫面，按下「開始出題」後，每 2 秒會隨機出現數字，每題 {count} 個數字，共 {question_count} 題。請使用「{op_text}」依序計算！"
+
+def get_leaderboard_by_mode(mode):
+    result = supabase.table('leaderboard') \
+            .select('*') \
+            .eq("mode", mode) \
+            .order('score', desc=True) \
+            .limit(10) \
+            .execute()
+    return result.data
+
+@app.route('/submit_score', methods=['POST'])
+def submit_score():
+    data = request.get_json()
+    nickname = data.get('nickname')
+    
+    # 模式轉換字典
+    mode_map = {
+        'add': '加法',
+        'sub': '減法',
+        'mix': '加(減)法'
+    }
+    mode_key = data.get('mode')
+    mode = mode_map.get(mode_key, mode_key)
+    score = data.get('score')
+    print("received json", request.json)
+
+    if nickname and mode and isinstance(score, int):
+        supabase.table('leaderboard').insert({
+            'nickname': nickname,
+            'mode': mode,
+            'score': score
+        }).execute()
+
+        leaderboard_data = get_leaderboard_by_mode(mode)
+
+        # 組成 HTML 排行榜
+        html = "<table style='width:100%; border-collapse: collapse;'>"
+        html += "<tr><th>名次</th><th>暱稱</th><th>模式</th><th>成績</th></tr>"
+        for i, row in enumerate(leaderboard_data, start=1):
+            html += f"<tr><td>{i}</td><td>{row['nickname']}</td><td>{row['mode']}</td><td>{row['score']}</td></tr>"
+        html += "</table>"
+
+        return jsonify({'message': '成績已提交', 'leaderboard_html': html})
+
+    else:
+        return jsonify({'error': '資料格式錯誤'}), 400
+
+
+
+@app.route('/get_leaderboard', methods=['GET'])
+def get_leaderboard():
+    mode = request.args.get('mode')
+    if not mode:
+        return jsonify({'error': '請提供模式參數'}), 400
+
+    leaderboard_data = get_leaderboard_by_mode(mode)
+
+    # 模式轉換字典
+    mode_map = {
+        'add': '加法',
+        'sub': '減法',
+        'mix': '加(減)法'
+    }
+
+    # 將每筆資料的 mode 轉為中文
+    for row in leaderboard_data:
+        row['mode'] = mode_map.get(row['mode'], row['mode'])  # 預設保留原本文字
+
+    return jsonify(leaderboard_data)
 
 if __name__ == '__main__':
     app.run()

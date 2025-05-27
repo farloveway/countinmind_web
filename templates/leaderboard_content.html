@@ -1,0 +1,22 @@
+<ul style="list-style-type: none; padding: 0; margin: 0; font-family: Arial, sans-serif;">
+    {% for row in leaderboard %}
+      <li style="margin: 8px 0; padding: 6px 10px; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; font-size: 16px;">
+        <div>
+          {% if loop.index == 1 %}
+            🏆
+          {% elif loop.index == 2 %}
+            🥈
+          {% elif loop.index == 3 %}
+            🥉
+          {% else %}
+            {{ loop.index }}.
+          {% endif %}
+          <strong>{{ row.nickname }}</strong>
+        </div>
+        <div style="font-size: 14px; color: #555;">
+            {{ row.mode }} / {{ row.score }} 分
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+  
