@@ -3,8 +3,8 @@ import random
 from datetime import datetime, timedelta
 from supabase import create_client, Client
 
-SUPABASE_URL = 'https://yhhoxmuqfiuosarpqnpx.supabase.co'
-SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloaG94bXVxZml1b3NhcnBxbnB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDA0NTEsImV4cCI6MjA5NjgxNjQ1MX0.xg2vguQmkFrU3JI5f8qBp7qB_VRDvYtcQb1nRjUqRXQ'
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = Flask(__name__)
